@@ -35,7 +35,7 @@ export default function Home() {
         }
         image="/gezelter.png"
         image_alt="Picture of Levi in the Gezelter Lab"
-        image_description="Me at the Geletzer Lab!"
+        image_description="Me at the Gezelter Lab!"
         title="Undergraduate Student Researcher - Gezelter Lab"
       />
       <Project
