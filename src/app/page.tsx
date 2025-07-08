@@ -1,9 +1,12 @@
 import { TopHeader } from "@/components/handmade/top-header";
 import { AboutMePicture, AboutMeMinecraft } from "@/components/handmade/about-me";
 import { Project } from "@/components/handmade/project";
-
 import React from "react";
-import ReactSkinview3d from "react-skinview3d";
+
+// Code that lets us handle image imports for Github Pages
+import getConfig from 'next/config';
+const { publicRuntimeConfig } = getConfig();
+const basePath = publicRuntimeConfig?.basePath || '';
 
 export default function Home() {
   return (
@@ -33,7 +36,7 @@ export default function Home() {
             Casodex.
           </div>
         }
-        image="/gezelter.png"
+        image={`${basePath}/gezelter.png`}
         image_alt="Picture of Levi in the Gezelter Lab"
         image_description="Me at the Gezelter Lab!"
         title="Undergraduate Student Researcher - Gezelter Lab"
@@ -60,13 +63,17 @@ export default function Home() {
             that take advantage of latent reactivity.
           </div>
         }
-        image="/ilucgroup.jpg"
+        image={`${basePath}/ilucgroup.jpg`}
         image_alt="Picture of Levi in the Gezelter Lab"
         image_description="Me with the Iluc Group!"
         title="Undergraduate Student Researcher - Iluc Group"
       />
       {/* <h1 className="text-center text-2xl font-bold py-2">Fun</h1> */}
       {/* <iframe src="https://namemc.com/embed?size=medium" width="390" height="38"></iframe> */}
+
+      <div className="flex justify-center">
+      <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:7270295633624711168" height="650" width="504" title="Embedded post"></iframe>
+      </div>
     </div>
   );
 }
