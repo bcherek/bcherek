@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Epic 3D Water Dipole Simulator ⚡</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #222c3c;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            cursor: default;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #customCursor {
+            display: none;
+        }
+        
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: #2a3444;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            color: #eee;
+            box-shadow: 0 0 8px #0006;
+            transform: none;
+            animation: none;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-100px); opacity: 0; }
+            to { transform: translateY(-10px); opacity: 1; }
+        }
+        
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #bcd;
+            text-shadow: none;
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 20px #00ffff; }
+            50% { text-shadow: 0 0 30px #00ffff, 0 0 40px #0088ff; }
+        }
+        
+        .control-group {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #232b38;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-shadow: none;
+        }
+        
+        .value-display {
+            color: #e88;
+            font-weight: 700;
+            text-shadow: none;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #bbb;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: none;
+            transition: none;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        button {
+            background: #3a4660;
+            border: 1px solid #666;
+            color: #eee;
+            padding: 7px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-weight: 600;
+            text-transform: none;
+            transition: background 0.2s;
+            box-shadow: none;
+            animation: none;
+        }
+
+        button:hover {
+            background: #4a5670;
+            box-shadow: none;
+            transform: none;
+        }
+
+        button:active {
+            background: #2a3444;
+            transform: none;
+        }
+        
+        #stats {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #232b38;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #a88;
+            color: #e88;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            box-shadow: 0 0 8px #0006;
+            animation: none;
+        }
+        
+        #info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #232b38;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #aaa;
+            color: #ccc;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            box-shadow: 0 0 8px #0006;
+            animation: none;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: none;
+        }
+
+        .oxygen { background: #6a7cff; }
+        .hydrogen { background: #ff8888; }
+        .attraction { background: #88e0ff; }
+        .repulsion { background: #ffb6b6; }
+        
+        #loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div>
+            <div class="loader"></div>
+            <div class="loading-text">Initializing Molecular Simulation...</div>
+        </div>
+    </div>
+    
+    <div id="customCursor"></div>
+    
+    <div id="container">
+        <div id="controls">
+            <h2>⚡ H₂O Dipole Simulator ⚡</h2>
+            
+            <div class="control-group">
+                <label>Molecules: <span class="value-display" id="countValue">15</span></label>
+                <input type="range" id="moleculeCount" min="5" max="50" value="15">
+            </div>
+            
+            <div class="control-group">
+                <label>Force Strength: <span class="value-display" id="forceValue">1.5</span></label>
+                <input type="range" id="forceStrength" min="0.1" max="5.0" step="0.1" value="1.5">
+            </div>
+            
+            <div class="control-group">
+                <label>Temperature: <span class="value-display" id="tempValue">300K</span></label>
+                <input type="range" id="temperature" min="50" max="800" value="300">
+            </div>
+            
+            <div class="control-group">
+                <label>Interaction Range: <span class="value-display" id="rangeValue">8.0</span></label>
+                <input type="range" id="interactionRange" min="3" max="15" step="0.5" value="8">
+            </div>
+            
+            <div class="button-group">
+                <button onclick="resetSimulation()">🔄 Reset</button>
+                <button onclick="togglePause()">⏸️ Pause</button>
+                <button onclick="addMolecule()">➕ Add H₂O</button>
+                <button onclick="toggleForces()">⚡ Forces</button>
+                <button onclick="toggleEffects()">✨ Effects</button>
+                <button onclick="freezeMode()">❄️ Freeze</button>
+                <button onclick="boilMode()">🔥 Boil</button>
+                <button id="sickoModeBtn" onclick="explodeSickoMode()" style="background: linear-gradient(90deg,#e11,#ff0,#0ff,#e11); color:#fff; font-weight:bold; font-size:1.2em; border: 2px solid #fff; box-shadow: 0 0 20px #e11, 0 0 40px #ff0; animation: sickoPulse 1s infinite alternate, sickoSpin 2s linear infinite; letter-spacing:2px; text-shadow: 0 0 8px #fff, 0 0 16px #e11;">💥 SICKO MODE</button>
+    <style>
+        @keyframes sickoPulse {
+            0% { box-shadow: 0 0 20px #e11, 0 0 40px #ff0; filter: brightness(1.2); }
+            100% { box-shadow: 0 0 40px #ff0, 0 0 80px #0ff; filter: brightness(2); }
+        }
+        @keyframes sickoSpin {
+            0% { transform: rotate(-2deg) scale(1.05); }
+            100% { transform: rotate(2deg) scale(1.15); }
+        }
+    </style>
+                <input type="file" id="sickoFileInput" accept="audio/*" style="display:none" />
+                <button onclick="document.getElementById('sickoFileInput').click()" style="background:#333; color:#fff;">🎵 Choose SICKO MODE file</button>
+            </div>
+        </div>
+        
+        <div id="stats">
+            <h3>📊 Statistics</h3>
+            <div>FPS: <span id="fps">60</span></div>
+            <div>Molecules: <span id="molCount">15</span></div>
+            <div>Interactions: <span id="interactions">0</span></div>
+            <div>Avg Speed: <span id="avgSpeed">0.0</span></div>
+            <div>Temperature: <span id="currentTemp">300K</span></div>
+        </div>
+        
+        <div id="info">
+            <h3>🧪 Molecular Legend</h3>
+            <div class="legend-item">
+                <div class="legend-color oxygen"></div>
+                <span>Oxygen (δ⁻) - Partial negative charge</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color hydrogen"></div>
+                <span>Hydrogen (δ⁺) - Partial positive charge</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color attraction"></div>
+                <span>Hydrogen bonds (attraction)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color repulsion"></div>
+                <span>Electrostatic repulsion</span>
+            </div>
+            <p style="margin-top: 15px; font-size: 11px; opacity: 0.8;">
+                🖱️ Mouse: Rotate view | 🎯 Wheel: Zoom | 🌟 Space: Pause
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="text/javascript">
+        // SICKO MODE EXPLOSION
+        function explodeSickoMode() {
+            // Make the button go wild visually
+            var btn = document.getElementById('sickoModeBtn');
+            if (btn) {
+                btn.style.transition = 'none';
+                btn.style.background = 'linear-gradient(270deg,#ff0,#e11,#0ff,#ff0)';
+                btn.style.boxShadow = '0 0 60px 20px #fff, 0 0 120px 40px #e11';
+                btn.style.filter = 'brightness(2.5) saturate(2)';
+                btn.style.transform = 'scale(1.25) rotate(-8deg)';
+                btn.style.textShadow = '0 0 24px #fff, 0 0 48px #e11, 0 0 32px #ff0';
+                btn.innerHTML = '🔥💥 SICKO MODE!!! 💥🔥';
+                setTimeout(function(){
+                    btn.style.transition = '';
+                    btn.style.background = 'linear-gradient(90deg,#e11,#ff0,#0ff,#e11)';
+                    btn.style.boxShadow = '0 0 20px #e11, 0 0 40px #ff0';
+                    btn.style.filter = '';
+                    btn.style.transform = '';
+                    btn.style.textShadow = '0 0 8px #fff, 0 0 16px #e11';
+                    btn.innerHTML = '💥 SICKO MODE';
+                }, 1800);
+            }
+            // 0. Add screen shake and color strobe
+            sickoScreenShake();
+            sickoColorStrobe();
+            // 1. Make all molecules fly apart
+            molecules.forEach(function(mol) {
+                mol.velocity.set(
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10
+                );
+                mol.angularVelocity.set(
+                    (Math.random() - 0.5) * 1,
+                    (Math.random() - 0.5) * 1,
+                    (Math.random() - 0.5) * 1
+                );
+            });
+            // 2. Trigger a huge explosion effect at the center and random places
+            for (var i = 0; i < 7; i++) {
+                (function(i) {
+                    setTimeout(function() {
+                        createExplosionEffect(new THREE.Vector3(0, 0, 0));
+                        // Extra: random explosions
+                        createExplosionEffect(new THREE.Vector3(
+                            (Math.random()-0.5)*30,
+                            (Math.random()-0.5)*30,
+                            (Math.random()-0.5)*30
+                        ));
+                    }, i * 160);
+                })(i);
+            }
+        // SICKO MODE: screen shake
+        function sickoScreenShake() {
+            var shake = 0;
+            var maxShake = 18;
+            var orig = document.body.style.transform;
+            function doShake() {
+                if (shake > maxShake) {
+                    document.body.style.transform = orig || '';
+                    return;
+                }
+                var x = (Math.random()-0.5)*16;
+                var y = (Math.random()-0.5)*16;
+                document.body.style.transform = `translate(${x}px,${y}px)`;
+                shake++;
+                setTimeout(doShake, 30);
+            }
+            doShake();
+        }
+
+        // SICKO MODE: color strobe
+        function sickoColorStrobe() {
+            var colors = ['#fff','#e11','#ff0','#0ff','#fff','#e11','#ff0','#0ff'];
+            var i = 0;
+            var flashes = 0;
+            var maxFlashes = 16;
+            var strobe = setInterval(function(){
+                document.body.style.background = colors[i%colors.length];
+                i++;
+                flashes++;
+                if (flashes > maxFlashes) {
+                    clearInterval(strobe);
+                    document.body.style.background = '#222c3c';
+                }
+            }, 50);
+        }
+            // 3. Flash the background color
+            var flashes = 0;
+            var flashInterval = setInterval(function() {
+                document.body.style.background = flashes % 2 === 0 ? '#fff' : '#e11';
+                flashes++;
+                if (flashes > 8) {
+                    clearInterval(flashInterval);
+                    document.body.style.background = '#222c3c';
+                }
+            }, 80);
+            // 4. Play SICKO MODE by Travis Scott
+            playSickoModeAudio();
+        }
+
+        // Play SICKO MODE by Travis Scott (audio)
+        function playSickoModeAudio() {
+            // If already playing, don't start again
+            if (window._sickoModeAudio && !window._sickoModeAudio.paused) {
+                window._sickoModeAudio.currentTime = 0;
+                window._sickoModeAudio.play();
+                return;
+            }
+            // Check if user has selected a file
+            var input = document.getElementById('sickoFileInput');
+            if (input && input.files && input.files[0]) {
+                var file = input.files[0];
+                var url = URL.createObjectURL(file);
+                if (window._sickoModeAudio) {
+                    window._sickoModeAudio.pause();
+                }
+                window._sickoModeAudio = new Audio(url);
+                window._sickoModeAudio.volume = 0.7;
+                window._sickoModeAudio.onended = function() { URL.revokeObjectURL(url); };
+                window._sickoModeAudio.play();
+                return;
+            }
+            // Fallback: play sample if no file selected
+            const fallbackUrl = 'https://cdn.glitch.global/7e2e2e2e-2e2e-4e2e-8e2e-2e2e2e2e2e2e/sicko_mode_sample.mp3?v=1';
+            if (!window._sickoModeAudio) {
+                window._sickoModeAudio = new Audio(fallbackUrl);
+                window._sickoModeAudio.volume = 0.7;
+            }
+            window._sickoModeAudio.currentTime = 0;
+            window._sickoModeAudio.play().catch(function(e) {
+                // User gesture required or playback error
+            });
+        }
+
+    // Animation loop (missing in your code)
+    function animate() {
+        animationId = requestAnimationFrame(animate);
+        updateForces();
+        molecules.forEach(mol => mol.update());
+        // Update stats
+        document.getElementById('molCount').textContent = molecules.length;
+        let avgSpeed = 0;
+        molecules.forEach(mol => { avgSpeed += mol.velocity.length(); });
+        avgSpeed = molecules.length ? (avgSpeed / molecules.length).toFixed(2) : '0.00';
+        document.getElementById('avgSpeed').textContent = avgSpeed;
+        document.getElementById('currentTemp').textContent = params.temperature + 'K';
+        // FPS calculation
+        const now = performance.now();
+        frameCount++;
+        if (now - lastTime > 1000) {
+            currentFPS = frameCount;
+            document.getElementById('fps').textContent = currentFPS;
+            frameCount = 0;
+            lastTime = now;
+        }
+        renderer.render(scene, camera);
+    }
+        // Animation loop (missing in your code)
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            updateForces();
+            molecules.forEach(mol => mol.update());
+            // Update stats
+            document.getElementById('molCount').textContent = molecules.length;
+            let avgSpeed = 0;
+            molecules.forEach(mol => { avgSpeed += mol.velocity.length(); });
+            avgSpeed = molecules.length ? (avgSpeed / molecules.length).toFixed(2) : '0.00';
+            document.getElementById('avgSpeed').textContent = avgSpeed;
+            document.getElementById('currentTemp').textContent = params.temperature + 'K';
+            // FPS calculation
+            const now = performance.now();
+            frameCount++;
+            if (now - lastTime > 1000) {
+                currentFPS = frameCount;
+                document.getElementById('fps').textContent = currentFPS;
+                frameCount = 0;
+                lastTime = now;
+            }
+            renderer.render(scene, camera);
+        }
+        // Global variables
+        let scene, camera, renderer, controls;
+        let molecules = [];
+        let forceLines = [];
+        let particles = [];
+        let animationId;
+        let isPaused = false;
+        let showForces = true;
+        let showEffects = true;
+        let frameCount = 0;
+        let lastTime = 0;
+        let currentFPS = 60;
+        let mouse = new THREE.Vector2();
+        let raycaster = new THREE.Raycaster();
+        let isMouseDown = false;
+        let mouseX = 0, mouseY = 0;
+        
+        // Simulation parameters
+        const params = {
+            moleculeCount: 15,
+            forceStrength: 1.5,
+            temperature: 300,
+            interactionRange: 8,
+            damping: 0.98,
+            maxSpeed: 0.5
+        };
+
+        // Custom cursor
+        const cursor = document.getElementById('customCursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+            
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Water molecule class
+        class WaterMolecule {
+            constructor(x, y, z) {
+                this.position = new THREE.Vector3(x, y, z);
+                this.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.2,
+                    (Math.random() - 0.5) * 0.2,
+                    (Math.random() - 0.5) * 0.2
+                );
+                this.rotation = new THREE.Euler(
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2,
+                    Math.random() * Math.PI * 2
+                );
+                this.angularVelocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.02,
+                    (Math.random() - 0.5) * 0.02,
+                    (Math.random() - 0.5) * 0.02
+                );
+                this.force = new THREE.Vector3();
+                this.createGeometry();
+                this.createEffects();
+            }
+
+            createGeometry() {
+                this.group = new THREE.Group();
+                
+                // Oxygen atom
+                const oxygenGeometry = new THREE.SphereGeometry(0.6, 32, 32);
+                const oxygenMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x3366ff,
+                    emissive: 0x001133,
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                this.oxygen = new THREE.Mesh(oxygenGeometry, oxygenMaterial);
+                this.oxygen.castShadow = true;
+                this.oxygen.receiveShadow = true;
+                this.group.add(this.oxygen);
+
+                // Hydrogen atoms
+                const hydrogenGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+                const hydrogenMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xff3366,
+                    emissive: 0x331100,
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.9
+                });
+
+                this.hydrogen1 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                this.hydrogen1.position.set(0.96, 0.6, 0);
+                this.hydrogen1.castShadow = true;
+                this.hydrogen1.receiveShadow = true;
+                this.group.add(this.hydrogen1);
+
+                this.hydrogen2 = new THREE.Mesh(hydrogenGeometry, hydrogenMaterial);
+                this.hydrogen2.position.set(0.96, -0.6, 0);
+                this.hydrogen2.castShadow = true;
+                this.hydrogen2.receiveShadow = true;
+                this.group.add(this.hydrogen2);
+
+                // Covalent bonds
+                const bondGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1.2);
+                const bondMaterial = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    emissive: 0x222222,
+                    transparent: true,
+                    opacity: 0.8
+                });
+
+                this.bond1 = new THREE.Mesh(bondGeometry, bondMaterial);
+                this.bond1.position.set(0.48, 0.3, 0);
+                this.bond1.rotation.z = -Math.PI / 8;
+                this.group.add(this.bond1);
+
+                this.bond2 = new THREE.Mesh(bondGeometry, bondMaterial);
+                this.bond2.position.set(0.48, -0.3, 0);
+                this.bond2.rotation.z = Math.PI / 8;
+                this.group.add(this.bond2);
+
+                // Dipole moment visualization
+                const dipoleGeometry = new THREE.ConeGeometry(0.1, 1.0, 8);
+                const dipoleMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x00ffff,
+                    emissive: 0x004444,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                this.dipoleArrow = new THREE.Mesh(dipoleGeometry, dipoleMaterial);
+                this.dipoleArrow.position.set(-1.2, 0, 0);
+                this.dipoleArrow.rotation.z = Math.PI / 2;
+                this.group.add(this.dipoleArrow);
+
+                // Charge indicators
+                this.createChargeIndicators();
+                
+                this.group.position.copy(this.position);
+                scene.add(this.group);
+            }
+
+            createChargeIndicators() {
+                // Negative charge on oxygen
+                const negativeGeometry = new THREE.RingGeometry(0.4, 0.5, 16);
+                const negativeMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x0088ff,
+                    transparent: true,
+                    opacity: 0.6,
+                    side: THREE.DoubleSide
+                });
+                this.negativeCharge = new THREE.Mesh(negativeGeometry, negativeMaterial);
+                this.negativeCharge.position.set(0, 0, 0.8);
+                this.group.add(this.negativeCharge);
+
+                // Positive charges on hydrogens
+                const positiveGeometry = new THREE.RingGeometry(0.2, 0.25, 16);
+                const positiveMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xff4444,
+                    transparent: true,
+                    opacity: 0.6,
+                    side: THREE.DoubleSide
+                });
+                
+                this.positiveCharge1 = new THREE.Mesh(positiveGeometry, positiveMaterial);
+                this.positiveCharge1.position.set(0.96, 0.6, 0.5);
+                this.group.add(this.positiveCharge1);
+
+                this.positiveCharge2 = new THREE.Mesh(positiveGeometry, positiveMaterial);
+                this.positiveCharge2.position.set(0.96, -0.6, 0.5);
+                this.group.add(this.positiveCharge2);
+            }
+
+            createEffects() {
+                // Particle system for molecule trail
+                const particleGeometry = new THREE.BufferGeometry();
+                const particleCount = 10;
+                const positions = new Float32Array(particleCount * 3);
+                
+                this.particlePositions = positions;
+                particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                
+                const particleMaterial = new THREE.PointsMaterial({
+                    color: 0x00ffff,
+                    size: 0.1,
+                    transparent: true,
+                    opacity: 0.6,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                this.particles = new THREE.Points(particleGeometry, particleMaterial);
+                scene.add(this.particles);
+                
+                this.particleHistory = [];
+            }
+
+            update() {
+                if (isPaused) return;
+
+                const time = Date.now() * 0.001;
+                
+                // Apply forces
+                this.velocity.add(this.force.clone().multiplyScalar(0.01));
+                this.velocity.multiplyScalar(params.damping);
+                
+                // Temperature effect
+                const tempFactor = params.temperature / 300;
+                const randomForce = new THREE.Vector3(
+                    (Math.random() - 0.5) * tempFactor * 0.01,
+                    (Math.random() - 0.5) * tempFactor * 0.01,
+                    (Math.random() - 0.5) * tempFactor * 0.01
+                );
+                this.velocity.add(randomForce);
+                
+                // Clamp velocity
+                if (this.velocity.length() > params.maxSpeed) {
+                    this.velocity.normalize().multiplyScalar(params.maxSpeed);
+                }
+
+                // Update position
+                this.position.add(this.velocity);
+
+                // Update rotation
+                this.rotation.x += this.angularVelocity.x;
+                this.rotation.y += this.angularVelocity.y;
+                this.rotation.z += this.angularVelocity.z;
+
+                // Boundary conditions with bouncing
+                const boundary = 20;
+                if (Math.abs(this.position.x) > boundary) {
+                    this.velocity.x *= -0.8;
+                    this.position.x = Math.sign(this.position.x) * boundary;
+                }
+                if (Math.abs(this.position.y) > boundary) {
+                    this.velocity.y *= -0.8;
+                    this.position.y = Math.sign(this.position.y) * boundary;
+                }
+                if (Math.abs(this.position.z) > boundary) {
+                    this.velocity.z *= -0.8;
+                    this.position.z = Math.sign(this.position.z) * boundary;
+                }
+
+                // Update group transform
+                this.group.position.copy(this.position);
+                this.group.rotation.copy(this.rotation);
+
+                // Animate charge indicators
+                this.negativeCharge.rotation.z = time * 2;
+                this.positiveCharge1.rotation.z = -time * 2;
+                this.positiveCharge2.rotation.z = -time * 2;
+
+                // Pulse effect based on velocity
+                const pulse = 1 + this.velocity.length() * 2;
+                this.dipoleArrow.scale.set(pulse, pulse, pulse);
+
+                // Update particle trail
+                this.updateParticleTrail();
+
+                // Reset force
+                this.force.set(0, 0, 0);
+            }
+
+            updateParticleTrail() {
+                // Add current position to history
+                this.particleHistory.push(this.position.clone());
+                if (this.particleHistory.length > 10) {
+                    this.particleHistory.shift();
+                }
+
+                // Update particle positions
+                for (let i = 0; i < this.particleHistory.length; i++) {
+                    const pos = this.particleHistory[i];
+                    this.particlePositions[i * 3] = pos.x;
+                    this.particlePositions[i * 3 + 1] = pos.y;
+                    this.particlePositions[i * 3 + 2] = pos.z;
+                }
+
+                this.particles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            getOxygenPosition() {
+                return this.position.clone();
+            }
+
+            getHydrogenPositions() {
+                const rotMatrix = new THREE.Matrix4().makeRotationFromEuler(this.rotation);
+                const h1Local = new THREE.Vector3(0.96, 0.6, 0);
+                const h2Local = new THREE.Vector3(0.96, -0.6, 0);
+                
+                h1Local.applyMatrix4(rotMatrix);
+                h2Local.applyMatrix4(rotMatrix);
+                
+                return [
+                    this.position.clone().add(h1Local),
+                    this.position.clone().add(h2Local)
+                ];
+            }
+
+            dispose() {
+                scene.remove(this.group);
+                scene.remove(this.particles);
+            }
+        }
+
+        // Initialize the simulation
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
+            scene.fog = new THREE.Fog(0x000011, 50, 200);
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 40);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Lighting setup
+            setupLighting();
+            
+            // Create starfield
+            createStarfield();
+            
+            // Create molecules
+            createMolecules();
+            
+            // Setup controls
+            setupControls();
+            
+            // Event listeners
+            setupEventListeners();
+            
+            // Start animation
+            animate();
+        }
+
+        function setupLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+            
+            // Main directional light
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(20, 20, 20);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Colored point lights for atmosphere
+            const pointLight1 = new THREE.PointLight(0x00ffff, 0.8, 100);
+            pointLight1.position.set(30, 30, 30);
+            scene.add(pointLight1);
+            
+            const pointLight2 = new THREE.PointLight(0xff0066, 0.6, 100);
+            pointLight2.position.set(-30, -30, -30);
+            scene.add(pointLight2);
+            
+            const pointLight3 = new THREE.PointLight(0x66ff00, 0.4, 100);
+            pointLight3.position.set(0, 40, -40);
+            scene.add(pointLight3);
+        }
+
+        function createStarfield() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.8,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const starVertices = [];
+            const starColors = [];
+            
+            for (let i = 0; i < 2000; i++) {
+                const x = (Math.random() - 0.5) * 400;
+                const y = (Math.random() - 0.5) * 400;
+                const z = (Math.random() - 0.5) * 400;
+                starVertices.push(x, y, z);
+                
+                // Random star colors
+                const color = new THREE.Color();
+                color.setHSL(Math.random(), 0.3, 0.7);
+                starColors.push(color.r, color.g, color.b);
+            }
+            
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+            
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        function createMolecules() {
+            // Clear existing molecules
+            molecules.forEach(mol => mol.dispose());
+            molecules = [];
+            
+            for (let i = 0; i < params.moleculeCount; i++) {
+                const x = (Math.random() - 0.5) * 30;
+                const y = (Math.random() - 0.5) * 30;
+                const z = (Math.random() - 0.5) * 30;
+                molecules.push(new WaterMolecule(x, y, z));
+            }
+        }
+
+        function updateForces() {
+            // Clear previous force lines
+            forceLines.forEach(line => scene.remove(line));
+            forceLines = [];
+            
+            let interactionCount = 0;
+            
+            for (let i = 0; i < molecules.length; i++) {
+                for (let j = i + 1; j < molecules.length; j++) {
+                    const mol1 = molecules[i];
+                    const mol2 = molecules[j];
+                    
+                    const distance = mol1.position.distanceTo(mol2.position);
+                    if (distance > params.interactionRange) continue;
+                    
+                    interactionCount++;
+                    
+                    const oxygenPos1 = mol1.getOxygenPosition();
+                    const oxygenPos2 = mol2.getOxygenPosition();
+                    const hydrogenPos1 = mol1.getHydrogenPositions();
+                    const hydrogenPos2 = mol2.getHydrogenPositions();
+                    
+                    // Hydrogen bond interactions (O-H attractions)
+                    hydrogenPos1.forEach(hPos1 => {
+                        const dist = hPos1.distanceTo(oxygenPos2);
+                        if (dist < params.interactionRange * 0.6) {
+                            const force = calculateHydrogenBond(hPos1, oxygenPos2, dist);
+                            mol1.force.add(force);
+                            mol2.force.sub(force);
+                            
+                            if (showForces) {
+                                createForceLine(hPos1, oxygenPos2, 0x00aaff, force.length());
+                            }
+                        }
+                    });
+                    
+                    hydrogenPos2.forEach(hPos2 => {
+                        const dist = hPos2.distanceTo(oxygenPos1);
+                        if (dist < params.interactionRange * 0.6) {
+                            const force = calculateHydrogenBond(hPos2, oxygenPos1, dist);
+                            mol2.force.add(force);
+                            mol1.force.sub(force);
+                            
+                            if (showForces) {
+                                createForceLine(hPos2, oxygenPos1, 0x00aaff, force.length());
+                            }
+                        }
+                    });
+                    
+                    // Repulsive interactions
+                    const ooDist = oxygenPos1.distanceTo(oxygenPos2);
+                    if (ooDist < 3.0) {
+                        const force = calculateRepulsion(oxygenPos1, oxygenPos2, ooDist);
+                        mol1.force.sub(force);
+                        mol2.force.add(force);
+                        
+                        if (showForces) {
+                            createForceLine(oxygenPos1, oxygenPos2, 0xff4444, force.length());
+                        }
+                    }
+                    
+                    // H-H repulsions
+                    hydrogenPos1.forEach(hPos1 => {
+                        hydrogenPos2.forEach(hPos2 => {
+                            const hhDist = hPos1.distanceTo(hPos2);
+                            if (hhDist < 2.0) {
+                                const force = calculateRepulsion(hPos1, hPos2, hhDist);
+                                mol1.force.sub(force);
+                                mol2.force.add(force);
+                                
+                                if (showForces) {
+                                    createForceLine(hPos1, hPos2, 0xff8844, force.length());
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+            
+            // Update stats
+            document.getElementById('interactions').textContent = interactionCount;
+        }
+
+        function calculateHydrogenBond(hPos, oPos, distance) {
+            const direction = new THREE.Vector3().subVectors(oPos, hPos).normalize();
+            const strength = params.forceStrength * (1 / (distance * distance + 0.1)) * 0.3;
+            return direction.multiplyScalar(strength);
+        }
+
+        function calculateRepulsion(pos1, pos2, distance) {
+            const direction = new THREE.Vector3().subVectors(pos1, pos2).normalize();
+            const strength = params.forceStrength * (1 / (distance * distance + 0.1)) * 0.5;
+            return direction.multiplyScalar(strength);
+        }
+
+        function createForceLine(pos1, pos2, color, intensity) {
+            const geometry = new THREE.BufferGeometry().setFromPoints([pos1, pos2]);
+            const material = new THREE.LineBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: Math.min(intensity * 5, 1.0),
+                linewidth: Math.max(intensity * 10, 1)
+            });
+            
+            const line = new THREE.Line(geometry, material);
+            forceLines.push(line);
+            scene.add(line);
+        }
+
+        function setupControls() {
+            // Mouse controls for camera rotation
+            let isMouseDown = false;
+            let mouseX = 0, mouseY = 0;
+            
+            document.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isMouseDown) return;
+                
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                
+                // Rotate camera around the scene
+                const spherical = new THREE.Spherical();
+                spherical.setFromVector3(camera.position);
+                spherical.theta -= deltaX * 0.01;
+                spherical.phi += deltaY * 0.01;
+                spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi));
+                
+                camera.position.setFromSpherical(spherical);
+                camera.lookAt(0, 0, 0);
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+            
+            // Zoom with mouse wheel
+            document.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                // Invert zoom direction for more natural feel
+                const zoom = -e.deltaY * 0.05;
+                // Calculate new camera distance
+                let newLength = camera.position.length() * (1 + zoom);
+                // Clamp the distance to a wider range
+                const minDist = 5;
+                const maxDist = 500;
+                newLength = Math.max(minDist, Math.min(maxDist, newLength));
+                camera.position.setLength(newLength);
+            }, { passive: false });
+        }
+
+        function setupEventListeners() {
+            // Control inputs
+            document.getElementById('moleculeCount').addEventListener('input', (e) => {
+                params.moleculeCount = parseInt(e.target.value);
+                document.getElementById('countValue').textContent = params.moleculeCount;
+                createMolecules();
+            });
+
+            document.getElementById('forceStrength').addEventListener('input', (e) => {
+                params.forceStrength = parseFloat(e.target.value);
+                document.getElementById('forceValue').textContent = params.forceStrength;
+            });
+
+            document.getElementById('temperature').addEventListener('input', (e) => {
+                params.temperature = parseInt(e.target.value);
+                document.getElementById('tempValue').textContent = params.temperature + 'K';
+            });
+
+            document.getElementById('interactionRange').addEventListener('input', (e) => {
+                params.interactionRange = parseFloat(e.target.value);
+                document.getElementById('rangeValue').textContent = params.interactionRange;
+            });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Control functions
+        function resetSimulation() {
+            createMolecules();
+            forceLines.forEach(line => scene.remove(line));
+            forceLines = [];
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (!isPaused) {
+                animate();
+            }
+        }
+
+        function addMolecule() {
+            if (molecules.length < 50) {
+                const x = (Math.random() - 0.5) * 30;
+                const y = (Math.random() - 0.5) * 30;
+                const z = (Math.random() - 0.5) * 30;
+                molecules.push(new WaterMolecule(x, y, z));
+                params.moleculeCount = molecules.length;
+                document.getElementById('countValue').textContent = params.moleculeCount;
+                document.getElementById('moleculeCount').value = params.moleculeCount;
+            }
+        }
+
+        function toggleForces() {
+            showForces = !showForces;
+            if (!showForces) {
+                forceLines.forEach(line => scene.remove(line));
+                forceLines = [];
+            }
+        }
+
+        function toggleEffects() {
+            showEffects = !showEffects;
+            molecules.forEach(mol => {
+                mol.particles.visible = showEffects;
+            });
+        }
+
+        function freezeMode() {
+            params.temperature = 50;
+            params.forceStrength = 0.3;
+            params.damping = 0.95;
+            
+            document.getElementById('temperature').value = params.temperature;
+            document.getElementById('forceStrength').value = params.forceStrength;
+            document.getElementById('tempValue').textContent = params.temperature + 'K';
+            document.getElementById('forceValue').textContent = params.forceStrength;
+            
+            // Add ice crystal effect
+            molecules.forEach(mol => {
+                mol.velocity.multiplyScalar(0.1);
+                mol.angularVelocity.multiplyScalar(0.1);
+            });
+        }
+
+        function boilMode() {
+            params.temperature = 700;
+            params.forceStrength = 3.0;
+            params.damping = 0.99;
+            
+            document.getElementById('temperature').value = params.temperature;
+            document.getElementById('forceStrength').value = params.forceStrength;
+            document.getElementById('tempValue').textContent = params.temperature + 'K';
+            document.getElementById('forceValue').textContent = params.forceStrength;
+            
+            // Add steam effect
+            molecules.forEach(mol => {
+                const randomVel = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5
+                );
+                mol.velocity.add(randomVel);
+                mol.angularVelocity.multiplyScalar(3);
+            });
+        }
+
+        // Particle effects for special interactions
+        function createExplosionEffect(position) {
+            const particleCount = 120;
+            const particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                const particle = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.04 + Math.random() * 0.08, 6, 6),
+                    new THREE.MeshBasicMaterial({
+                        color: new THREE.Color().setHSL(Math.random(), 1.0, 0.5),
+                        transparent: true,
+                        opacity: 0.9
+                    })
+                );
+                particle.position.copy(position);
+                particle.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8,
+                    (Math.random() - 0.5) * 8
+                );
+                particle.life = 1.2 + Math.random() * 0.8;
+                particles.push(particle);
+                scene.add(particle);
+            }
+            // Animate particles
+            const animateParticles = () => {
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const particle = particles[i];
+                    particle.position.add(particle.velocity);
+                    particle.velocity.multiplyScalar(0.96);
+                    particle.life -= 0.025;
+                    particle.material.opacity = Math.max(0, particle.life);
+                    if (particle.life <= 0) {
+                        scene.remove(particle);
+                        particles.splice(i, 1);
+                    }
+                }
+                if (particles.length > 0) {
+                    requestAnimationFrame(animateParticles);
+                }
+            };
+            animateParticles();
+        }
+
+        // Enhanced visual effects
+        function addGlowEffect() {
+            const composer = new THREE.EffectComposer(renderer);
+            const renderPass = new THREE.RenderPass(scene, camera);
+            composer.addPass(renderPass);
+            
+            const bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                1.5, // strength
+                0.4, // radius
+                0.85 // threshold
+            );
+            composer.addPass(bloomPass);
+            
+            return composer;
+        }
+
+        // Audio feedback (optional)
+        function playInteractionSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            if (type === 'attraction') {
+                oscillator.frequency.value = 440;
+            } else if (type === 'repulsion') {
+                oscillator.frequency.value = 220;
+            }
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Performance monitoring
+        function optimizePerformance() {
+            // Reduce quality on low-end devices
+            if (currentFPS < 30) {
+                molecules.forEach(mol => {
+                    mol.oxygen.geometry = new THREE.SphereGeometry(0.6, 16, 16);
+                    mol.hydrogen1.geometry = new THREE.SphereGeometry(0.3, 8, 8);
+                    mol.hydrogen2.geometry = new THREE.SphereGeometry(0.3, 8, 8);
+                });
+            }
+            
+            // Cull distant molecules
+            molecules.forEach(mol => {
+                const distance = mol.position.distanceTo(camera.position);
+                mol.group.visible = distance < 100;
+            });
+        }
+
+        // Initialize everything when the page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                init();
+                
+                // Performance optimization check
+                setInterval(optimizePerformance, 5000);
+                
+                // Add some initial excitement
+                setTimeout(() => {
+                    createExplosionEffect(new THREE.Vector3(0, 0, 0));
+                }, 1000);
+            }, 3000);
+        });
+
+        // Easter eggs and fun interactions
+        document.addEventListener('dblclick', (e) => {
+            // Create explosion at mouse position
+            const rect = renderer.domElement.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            const vector = new THREE.Vector3(x, y, 0.5);
+            vector.unproject(camera);
+            
+            const dir = vector.sub(camera.position).normalize();
+            const distance = -camera.position.z / dir.z;
+            const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+            
+            createExplosionEffect(pos);
+        });
+
+        // Konami code easter egg
+        let konamiCode = [];
+        const konamiSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
+        
+        document.addEventListener('keydown', (e) => {
+            konamiCode.push(e.keyCode);
+            if (konamiCode.length > konamiSequence.length) {
+                konamiCode.shift();
+            }
+            
+            if (konamiCode.length === konamiSequence.length && 
+                konamiCode.every((code, index) => code === konamiSequence[index])) {
+                // Activate rainbow mode!
+                molecules.forEach(mol => {
+                    mol.oxygen.material.color.setHSL(Math.random(), 1, 0.5);
+                    mol.hydrogen1.material.color.setHSL(Math.random(), 1, 0.5);
+                    mol.hydrogen2.material.color.setHSL(Math.random(), 1, 0.5);
+                });
+                
+                alert('🌈 Rainbow mode activated! 🌈');
+                konamiCode = [];
+            }
+        });
+
+        // Cleanup function
+        window.addEventListener('beforeunload', () => {
+            molecules.forEach(mol => mol.dispose());
+            forceLines.forEach(line => scene.remove(line));
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+    </script>
+</body>
+</html>
