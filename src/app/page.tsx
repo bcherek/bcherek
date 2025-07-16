@@ -25,21 +25,19 @@ export default function Home() {
               className="text-blue-500 underline"
               href="https://gezelterlab.org/"
             >
-              Gezelter lab
+              Gezelter Lab
             </a>{" "}
-            centered on understanding how complex physical behavior emerges from
-            simple interactions between molecules by utilizing molecular
-            dynamics simulations. The project I worked on investigates the idea
-            of separating enantiomers via shear-flow and local vorticity.
-            Previous work in the lab approached this issue utilizing rigid
-            molecules while my work focuses on the flexible drug molecule
-            Casodex.
+            focused on using molecular dynamics simulations in OpenMD to investigate enantiomer 
+            separation methods. Reverse Non-Equilibrium Molecular Dynamics (RNEMD) 
+            was used to simulate local vortices, which caused enantiomers to rotate and swim in opposite directions.
+            Previous work in the lab approached this issue utilizing rigid, propellor-shaped molecules
+            while my work focused on the flexible anti-androgen Casodex.
           </div>
         }
         image={`${basePath}/gezelter.png`}
         image_alt="Picture of Levi in the Gezelter Lab"
         image_description="Me in the Gezelter Lab!"
-        title="Undergraduate Student Researcher - Gezelter Lab"
+        title="Undergraduate Student Researcher - Gezelter Lab (2024-2025)"
       />
       <Project
         project_description={
@@ -49,24 +47,23 @@ export default function Home() {
               className="text-blue-500 underline"
               href="https://www3.nd.edu/~viluc/index.html"
             >
-            Iluc Research Group
+            Iluc Group
             </a>{" "}
-            focuses on the activation of inert 
-            molecules, with an emphasis on the functionalization of C-H bonds in
-            a catalytic manner. These are imperative scientific problems since
-            less expensive and more readily available feedstocks than those
-            currently used could be employed to meet some of the energy demands
-            of our society. In a broad sense, the group is interested in green
-            chemistry both in its approach (catalysis) and emphasis on using
-            inert substrates (activation of C-H bonds). The focus is on
-            organometallic chemistry and especially on design of metal complexes
-            that take advantage of latent reactivity.
+            focuses on synthesizing metal catalysts with earth-abundant elements
+            for sustainable catalysis. From May 2023 to August 2023, through a
+            grant from the Glynn Family Honors Program, I worked full-time on
+            the synthesis of iron carbenes with the end-goal of creating a
+            metathesis active iron species.  From May 2024 to August 2024,
+            I received ND Energy's Vincent P. Slatt Fellowship to pursue
+            full-time, funded research on campus.  I presented a poster
+            during the 2024 Summer Research Symposium, investigating the
+            reactivity of a three-coordinate nickel carbene complex with strained olefins as possible candidates for olefin metathesis.
           </div>
         }
         image={`${basePath}/ilucgroup.jpg`}
         image_alt="Picture of Levi in the Gezelter Lab"
         image_description="Me with the Iluc Group!"
-        title="Undergraduate Student Researcher - Iluc Group"
+        title="Undergraduate Student Researcher - Iluc Group (2023-2024)"
       />
       {/* <h1 className="text-center text-2xl font-bold py-2">Fun</h1> */}
       {/* <iframe src="https://namemc.com/embed?size=medium" width="390" height="38"></iframe> */}
