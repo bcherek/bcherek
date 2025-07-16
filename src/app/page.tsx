@@ -71,9 +71,9 @@ export default function Home() {
       {/* <h1 className="text-center text-2xl font-bold py-2">Fun</h1> */}
       {/* <iframe src="https://namemc.com/embed?size=medium" width="390" height="38"></iframe> */}
 
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
       <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:7270295633624711168" height="650" width="504" title="Embedded post"></iframe>
-      </div>
+      </div> */}
     </div>
   );
 }
