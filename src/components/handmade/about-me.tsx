@@ -19,8 +19,8 @@ export function AboutMePicture() {
   </div>
       <h3 className="text-black text-2xl px-10">
         
-        I'm Levi, an incoming <span className="font-bold">Chemistry PhD Candidate</span> at <span className="font-bold">UChicago</span>. 
-        I just received my <span className="font-bold">BS in Biochemistry</span> at <span className="font-bold">Notre Dame</span>. 
+        I'm Levi, an incoming <span className="font-bold">Chemistry PhD Student</span> at the <span className="font-bold">University of Chicago</span>. 
+        I just received my <span className="font-bold">BS in Biochemistry</span> at the <span className="font-bold">University of Notre Dame</span>. 
       </h3>
     </div>
   );
@@ -44,8 +44,8 @@ export function AboutMeMinecraft() {
   </div>
       <h3 className="text-black text-2xl px-10">
         
-        I'm Levi, an incoming <span className="font-bold">Chemistry PhD Candidate</span> at <span className="font-bold">UChicago</span>. 
-        I just received my <span className="font-bold">BS in Biochemistry</span> at <span className="font-bold">Notre Dame</span>. 
+        I'm Levi, an incoming <span className="font-bold">Chemistry PhD Student</span> at the <span className="font-bold">University of Chicago</span>. 
+        I just received my <span className="font-bold">BS in Biochemistry</span> at the <span className="font-bold">University of Notre Dame</span>. 
       </h3>
     </div>
   );

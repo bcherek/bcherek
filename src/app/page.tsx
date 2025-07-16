@@ -23,6 +23,26 @@ export default function Home() {
             My research in the
             {" "}<a
               className="text-blue-500 underline"
+              href="https://voices.uchicago.edu/vothgroup/"
+            >
+              Voth Group
+            </a>{" "}
+            just began less than a week ago! I will be using molecular dynamics 
+            simulations in tandem with coarse graining and ML techniques to investigate biophysical 
+            systems. Details will be coming soon!
+          </div>
+        }
+        image={`${basePath}/CG.png`}
+        image_alt="Picture of Levi in the Gezelter Lab"
+        image_description="Two-Site Coarse Grained Methanol"
+        title="Graduate Student Researcher - Voth Group (Summer 2025)"
+      />
+      <Project
+        project_description={
+          <div>
+            My research in the
+            {" "}<a
+              className="text-blue-500 underline"
               href="https://gezelterlab.org/"
             >
               Gezelter Lab
