@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d out --nojekyll",
+    "deploy": "gh-pages -d out --nojekyll --cname levicherek.com",
 
 
     "start": "next start",
