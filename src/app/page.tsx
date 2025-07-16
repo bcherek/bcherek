@@ -38,7 +38,7 @@ export default function Home() {
         }
         image={`${basePath}/gezelter.png`}
         image_alt="Picture of Levi in the Gezelter Lab"
-        image_description="Me at the Gezelter Lab!"
+        image_description="Me in the Gezelter Lab!"
         title="Undergraduate Student Researcher - Gezelter Lab"
       />
       <Project
